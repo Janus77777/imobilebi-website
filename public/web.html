@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImobileBI：您的數據戰情室，拖拉拽即刻實現</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0F172A; /* Slate 900 */
+            color: #E2E8F0; /* Slate 200 */
+        }
+        .hero-gradient {
+            background: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.15) 0%, rgba(15, 23, 42, 0) 60%);
+        }
+        .highlight-cyan { color: #22d3ee; }
+        .highlight-amber { color: #f59e0b; }
+        .btn-primary {
+            background: #0ea5e9; /* Sky 500 */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .btn-primary:hover {
+            background: #0284c7; /* Sky 600 */
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2), 0 4px 6px -2px rgba(14, 165, 233, 0.1);
+        }
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            margin-top: -12px;
+            margin-left: -12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .form-input {
+            background-color: #1E293B; /* Slate 800 */
+            border-color: #334155; /* Slate 700 */
+            color: #CBD5E1; /* Slate 300 */
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #0ea5e9; /* Sky 500 */
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.4);
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .logo-wall img {
+            transition: transform 0.3s ease;
+        }
+        .logo-wall img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <section id="top" class="relative min-h-screen flex items-center justify-center overflow-hidden hero-gradient px-4 py-16 md:py-20">
+        <div class="absolute top-8 left-8 flex items-center gap-3 z-10">
+            <img src="assets/logo-imobilebi.svg" alt="ImobileBI Logo" class="h-12 w-auto drop-shadow-lg">
+            <span class="text-xl font-semibold tracking-tight text-white/90">ImobileBI</span>
+        </div>
+        <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white leading-tight mb-4 fade-in">
+                    <span class="block md:inline-block md:whitespace-nowrap">您的數據戰情室，</span>
+                    <span class="block md:inline-block md:whitespace-nowrap highlight-cyan">拖拉拽即刻實現</span>
+                </h1>
+                <p class="text-lg md:text-xl text-slate-300 mb-6 fade-in" style="transition-delay: 150ms;">
+                    停止猜測，開始「看見」您生意的全貌。<br>將雜亂的數據，轉化為令人驚豔的互動式儀表板。
+                </p>
+                <p class="text-base text-slate-400 fade-in" style="transition-delay: 300ms;">
+                    「您的數據正在沉睡，而您的團隊正在為報表內耗。是時候喚醒它了。」
+                </p>
+            </div>
+
+            <div id="contact-form-container" class="bg-slate-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-slate-700 fade-in" style="transition-delay: 450ms;">
+                <h2 class="text-2xl font-bold text-white text-center mb-2">預約 30 分鐘線上演示</h2>
+                <p class="text-center text-slate-400 mb-6">填寫下方資訊，我們的數據顧問將盡快與您聯繫。</p>
+                <form id="contactForm">
+                    <div class="space-y-4">
+                        <input type="text" id="name" name="name" placeholder="您的姓名" class="w-full p-3 rounded-lg form-input" required>
+                        <input type="text" id="company" name="company" placeholder="公司名稱" class="w-full p-3 rounded-lg form-input" required>
+                        <input type="email" id="email" name="email" placeholder="公司 Email" class="w-full p-3 rounded-lg form-input" required>
+                        <input type="tel" id="phone" name="phone" placeholder="聯絡電話" class="w-full p-3 rounded-lg form-input">
+                        <button type="submit" id="submit-btn" class="w-full p-4 text-lg font-bold text-white rounded-lg btn-primary shadow-lg">
+                            <span class="btn-text">立即預約，看 DEMO</span>
+                        </button>
+                    </div>
+                </form>
+                <p class="text-center text-slate-500 text-sm mt-4">
+                    或直接來信：<a href="mailto:info@imobilebi.com" class="text-sky-400 hover:text-sky-300">info@imobilebi.com</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-slate-800 rounded-xl p-8 text-center shadow-2xl border border-slate-700 max-w-sm mx-auto">
+            <h3 id="modal-title" class="text-2xl font-bold text-cyan-400 mb-4"></h3>
+            <p id="modal-message" class="text-slate-300 mb-6"></p>
+            <button id="close-modal" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-lg">關閉</button>
+        </div>
+    </div>
+
+
+    <section class="py-20 md:py-28 px-4">
+        <div class="container mx-auto text-center max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">還在忍受這種<span class="highlight-amber">「數據惡夢」</span>嗎？</h2>
+            <p class="text-lg text-slate-400 mb-12 fade-in">您需要的不是更多的報表，而是一個能讓您「一秒看懂」的智慧駕駛艙。</p>
+            <div class="grid md:grid-cols-3 gap-8 text-left">
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in">
+                    <h3 class="text-xl font-bold text-white mb-2">報表等到天荒地老？</h3>
+                    <p class="text-slate-400">各部門數據散落各處，光是匯總就耗掉半天，臨時提問更是遙遙無期。</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in" style="transition-delay: 150ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">數字密密麻麻，重點在哪？</h3>
+                    <p class="text-slate-400">決策會議變成了「大家來找碴」，看不出潛在的機會與風險。</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in" style="transition-delay: 300ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">想看數據還要求人？</h3>
+                    <p class="text-slate-400">離開辦公室就彷彿與世隔絕，錯失決策先機。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-28 px-4 bg-slate-900/50">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">三大超能力，讓您決策<span class="highlight-cyan">遙遙領先</span></h2>
+            <p class="text-lg text-slate-400 max-w-3xl mx-auto mb-16 fade-in">告別報表地獄，數據從未如此「性感」。</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6 fade-in">
+                    <img src="assets/feature-visual.png" alt="電影級視覺化" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <h3 class="text-2xl font-bold text-white mb-2">電影級視覺化</h3>
+                    <p class="text-slate-400">超過 100 種圖表與酷炫 3D 動效，打造讓老闆和客戶都驚豔的戰情室。</p>
+                </div>
+                <div class="text-center p-6 fade-in" style="transition-delay: 150ms;">
+                    <img src="assets/feature-integration.png" alt="全系統一鍵接入" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <h3 class="text-2xl font-bold text-white mb-2">全系統一鍵接入</h3>
+                    <p class="text-slate-400">無論是資料庫、雲端、API 還是 Excel，都能輕鬆連接，告別數據孤島。</p>
+                </div>
+                <div class="text-center p-6 fade-in" style="transition-delay: 300ms;">
+                    <img src="assets/feature-easy.png" alt="像玩遊戲一樣簡單" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <h3 class="text-2xl font-bold text-white mb-2">像玩遊戲一樣簡單</h3>
+                    <p class="text-slate-400">真正零程式碼，業務人員也能上手，用拖拉拽取代複雜語法。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <section class="py-20 md:py-28 px-4">
+        <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div class="fade-in">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">看看他們如何用 ImobileBI <br><span class="highlight-amber">決勝千里</span></h2>
+                <ul class="space-y-4 text-lg">
+                    <li class="flex items-start">
+                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+                        <p><strong class="text-white">智慧工廠：</strong>即時監控產線良率與設備狀態。</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+                         <p><strong class="text-white">智能倉儲：</strong>透過 3D 可視化，一眼看穿庫存與物流。</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+                         <p><strong class="text-white">ESG 永續經營：</strong>將複雜指標化為清晰的管理儀表板。</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+                         <p><strong class="text-white">零售龍頭：</strong>從集團、商品到單店的營運表現，一頁掌握。</p>
+                    </li>
+                </ul>
+            </div>
+            <div class="fade-in" style="transition-delay: 150ms;">
+                <img src="assets/case-smart-factory.png" alt="智慧工廠監控戰情室" class="rounded-2xl shadow-2xl w-full">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-28 px-4 bg-slate-900/50">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">超過 <span class="highlight-cyan">500+</span> 知名企業已選擇德昂資訊</h2>
+            <p class="text-lg text-slate-400 mb-12 fade-in">我們不僅提供頂尖工具，更提供落地的專業服務。</p>
+            <div class="max-w-4xl mx-auto grid grid-cols-3 md:grid-cols-6 gap-8 items-center logo-wall fade-in">
+                <img src="assets/logo-carrefour.jpg" alt="家樂福 Logo" class="mx-auto">
+                <img src="assets/logo-taipei101.jpg" alt="台北101 Logo" class="mx-auto">
+                <img src="assets/logo-hanlai.png" alt="漢來美食 Logo" class="mx-auto">
+                <img src="assets/logo-taiwan-sakura.jpg" alt="台灣櫻花 Logo" class="mx-auto">
+                <img src="assets/logo-nec.png" alt="NEC Logo" class="mx-auto">
+                <img src="assets/logo-taipei-city.jpg" alt="臺北市政府 Logo" class="mx-auto">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-32 px-4 text-center">
+        <div class="container mx-auto max-w-3xl fade-in">
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-4">您的下一個商業突破，<br>就藏在<span class="highlight-cyan">數據</span>裡。</h2>
+            <p class="text-lg text-slate-300 mb-8">別再讓機會從報表的縫隙中溜走。立即預約，我們將向您展示 ImobileBI 如何為您的企業點亮數據的價值。</p>
+            <a href="#top" class="inline-block px-12 py-4 text-xl font-bold text-white rounded-lg btn-primary shadow-lg">
+                立即預約，打造我的專屬戰情室
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 py-12 px-4">
+        <div class="container mx-auto text-center text-slate-400">
+            <p class="font-bold text-lg text-white mb-2">關於我們：德昂資訊，您的數據價值創造者</p>
+            <p class="max-w-2xl mx-auto mb-4 text-sm">
+                成立於 2009 年，專注於資料倉儲與商業智慧領域。我們擁有超過 16 年的豐富專案經驗，提供從顧問規劃到系統開發的一條龍解決方案，致力於為企業創造數據的真實價值。
+            </p>
+            <div class="text-sm text-slate-400 space-y-1 mt-6">
+                <p>電話：<a href="tel:02-7724-8202" class="hover:text-sky-400">02-7724-8202</a></p>
+                <p>信箱：<a href="mailto:info@imobilebi.com" class="hover:text-sky-400">info@imobilebi.com</a></p>
+                <p>地址：台北市松山區南京東路四段1號11樓</p>
+            </div>
+            <p class="text-xs text-slate-500 mt-6">&copy; 2025 德昂資訊有限公司. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const contactForm = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        
+        const messageModal = document.getElementById('message-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const closeModalButton = document.getElementById('close-modal');
+
+        function showModal(title, message, isSuccess) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalTitle.className = `text-2xl font-bold mb-4 ${isSuccess ? 'text-cyan-400' : 'text-amber-400'}`;
+            messageModal.classList.remove('hidden');
+        }
+
+        closeModalButton.addEventListener('click', () => messageModal.classList.add('hidden'));
+        messageModal.addEventListener('click', (event) => {
+            if (event.target === messageModal) messageModal.classList.add('hidden');
+        });
+
+        contactForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const originalBtnText = btnText.textContent;
+            submitBtn.disabled = true;
+            btnText.textContent = '傳送中...';
+            submitBtn.classList.add('loading');
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                company: document.getElementById('company').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+            };
+
+            try {
+                const response = await fetch('/api/sendEmail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`伺服器錯誤: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                showModal('感謝您！', '我們已收到您的預約資訊，數據顧問將會盡快與您聯繫。', true);
+                contactForm.reset();
+
+            } catch (error) {
+                console.error('表單提交錯誤:', error);
+                showModal('傳送失敗', '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。', false);
+            } finally {
+                 submitBtn.disabled = false;
+                 btnText.textContent = originalBtnText;
+                 submitBtn.classList.remove('loading');
+            }
+        });
+
+        // --- Fade-in Animation Logic ---
+        const faders = document.querySelectorAll('.fade-in');
+        const appearOptions = { threshold: 0.2, rootMargin: "0px 0px -50px 0px" };
+        const appearOnScroll = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, appearOptions);
+        faders.forEach(fader => appearOnScroll.observe(fader));
+    </script>
+
+</body>
+</html>
