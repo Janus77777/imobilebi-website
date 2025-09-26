@@ -5,6 +5,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config(); // 用於管理敏感資訊 (如信箱密碼)
 
 // 2. 初始化 Express 應用
@@ -14,7 +15,12 @@ const PORT = process.env.PORT || 3000;
 // 3. 設定中介軟體 (Middleware)
 app.use(cors()); // 允許跨來源請求
 app.use(express.json()); // 解析 JSON 格式的請求內容
-app.use(express.static('public')); // 託管 public 資料夾中的靜態檔案 (例如您的 web.html)
+app.use(express.static(path.join(__dirname, 'public'))); // 託管 public 資料夾中的靜態檔案 (例如您的 web.html)
+
+// 讓根路由回傳 landing page，避免 "Cannot GET /" 的錯誤
+app.get('/', (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'web.html'));
+});
 
 // 4. 建立郵件發送的 API 端點
 app.post('/api/sendEmail', async (req, res) => {
