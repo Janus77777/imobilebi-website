@@ -122,6 +122,13 @@
     </div>
 
 
+    <div id="image-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="relative max-w-5xl w-full">
+            <button id="close-image-modal" class="absolute -top-3 -right-3 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold" aria-label="關閉圖片">×</button>
+            <img id="modal-image" src="" alt="放大圖片" class="w-full rounded-2xl shadow-2xl border border-slate-700 bg-slate-900 object-contain max-h-[80vh]">
+        </div>
+    </div>
+
     <section class="py-20 md:py-28 px-4">
         <div class="container mx-auto text-center max-w-4xl">
             <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">還在忍受這種<span class="highlight-amber">「數據惡夢」</span>嗎？</h2>
@@ -149,17 +156,17 @@
             <p class="text-lg text-slate-400 max-w-3xl mx-auto mb-16 fade-in">告別報表地獄，數據從未如此「性感」。</p>
             <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
                 <div class="text-center p-6 fade-in">
-                    <img src="assets/feature-visual.png" alt="電影級視覺化" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <img src="assets/feature-visual.png" alt="電影級視覺化" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
                     <h3 class="text-2xl font-bold text-white mb-2">電影級視覺化</h3>
                     <p class="text-slate-400">超過 100 種圖表與酷炫 3D 動效，打造讓老闆和客戶都驚豔的戰情室。</p>
                 </div>
                 <div class="text-center p-6 fade-in" style="transition-delay: 150ms;">
-                    <img src="assets/feature-integration.png" alt="全系統一鍵接入" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <img src="assets/feature-integration.png" alt="全系統一鍵接入" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
                     <h3 class="text-2xl font-bold text-white mb-2">全系統一鍵接入</h3>
                     <p class="text-slate-400">無論是資料庫、雲端、API 還是 Excel，都能輕鬆連接，告別數據孤島。</p>
                 </div>
                 <div class="text-center p-6 fade-in" style="transition-delay: 300ms;">
-                    <img src="assets/feature-easy.png" alt="像玩遊戲一樣簡單" class="rounded-xl mx-auto mb-6 shadow-lg">
+                    <img src="assets/feature-easy.png" alt="像玩遊戲一樣簡單" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
                     <h3 class="text-2xl font-bold text-white mb-2">像玩遊戲一樣簡單</h3>
                     <p class="text-slate-400">真正零程式碼，業務人員也能上手，用拖拉拽取代複雜語法。</p>
                 </div>
@@ -246,6 +253,11 @@
         const modalMessage = document.getElementById('modal-message');
         const closeModalButton = document.getElementById('close-modal');
 
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const closeImageModal = document.getElementById('close-image-modal');
+        const galleryImages = document.querySelectorAll('[data-enlarge]');
+
         function showModal(title, message, isSuccess) {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -257,6 +269,26 @@
         messageModal.addEventListener('click', (event) => {
             if (event.target === messageModal) messageModal.classList.add('hidden');
         });
+
+        if (imageModal && modalImage) {
+            const hideImageModal = () => imageModal.classList.add('hidden');
+
+            galleryImages.forEach(image => {
+                image.addEventListener('click', () => {
+                    modalImage.src = image.dataset.enlarge || image.src;
+                    modalImage.alt = image.alt || '放大圖片';
+                    imageModal.classList.remove('hidden');
+                });
+            });
+
+            if (closeImageModal) {
+                closeImageModal.addEventListener('click', hideImageModal);
+            }
+
+            imageModal.addEventListener('click', (event) => {
+                if (event.target === imageModal) hideImageModal();
+            });
+        }
 
         contactForm.addEventListener('submit', async function(event) {
             event.preventDefault();
