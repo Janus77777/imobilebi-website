@@ -23,6 +23,42 @@ app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'web.html'));
 });
 
+// 共用：建立 Nodemailer transporter（與 sendEmail 使用一致設定）
+function createTransporterFromEnv() {
+    const SMTP_HOST = process.env.SMTP_HOST;
+    const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+    const SMTP_USER = process.env.SMTP_USER;
+    const SMTP_PASS = process.env.SMTP_PASS;
+    return nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: SMTP_PORT,
+        secure: SMTP_PORT === 465,
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+        pool: true,
+        maxConnections: 2,
+        maxMessages: 20,
+        connectionTimeout: 10000,
+        greetingTimeout: 7000,
+        socketTimeout: 15000,
+    });
+}
+
+// SMTP 連線驗證端點（不寄信，只驗證連線/登入）
+app.get('/api/verifySMTP', async (_req, res) => {
+    const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
+    if (looksLikePlaceholder(process.env.SMTP_HOST) || looksLikePlaceholder(process.env.SMTP_USER) || looksLikePlaceholder(process.env.SMTP_PASS)) {
+        return res.status(503).json({ ok: false, code: 'SMTP_NOT_CONFIGURED', message: '郵件服務尚未設定' });
+    }
+    try {
+        const transporter = createTransporterFromEnv();
+        await transporter.verify();
+        return res.json({ ok: true });
+    } catch (error) {
+        console.error('[SMTP VERIFY] 失敗:', error?.message || error);
+        return res.status(500).json({ ok: false, code: error?.code || 'VERIFY_FAILED', message: error?.message || '驗證失敗' });
+    }
+});
+
 // 4. 建立郵件發送的 API 端點
 // 健康檢查：前端可用此端點判斷 SMTP 是否已設定
 app.get('/api/health', (_req, res) => {
