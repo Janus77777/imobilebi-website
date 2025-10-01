@@ -73,15 +73,17 @@ app.get('/api/verifySMTP', async (_req, res) => {
 });
 
 // 4. 建立郵件發送的 API 端點
-// 健康檢查：前端可用此端點判斷 SMTP 是否已設定
+// 健康檢查：回報目前提供者（SMTP 或 Resend）與設定狀態
 app.get('/api/health', (_req, res) => {
+    const provider = process.env.RESEND_API_KEY ? 'resend' : 'smtp';
     const SMTP_HOST = process.env.SMTP_HOST;
     const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
     const SMTP_USER = process.env.SMTP_USER;
     const SMTP_PASS = process.env.SMTP_PASS;
     const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
     const smtpConfigured = !(looksLikePlaceholder(SMTP_HOST) || looksLikePlaceholder(SMTP_USER) || looksLikePlaceholder(SMTP_PASS));
-    res.json({ ok: true, smtpConfigured, node: process.version, port: PORT });
+    const resendConfigured = Boolean(process.env.RESEND_API_KEY);
+    res.json({ ok: true, provider, smtpConfigured, resendConfigured, node: process.version, port: PORT });
 });
 
 app.post('/api/sendEmail', async (req, res) => {
@@ -93,24 +95,69 @@ app.post('/api/sendEmail', async (req, res) => {
         return res.status(400).json({ message: '姓名、公司和 Email 為必填欄位。' });
     }
 
-    // 讀取 SMTP 設定
+    // 如果設定了 RESEND_API_KEY，優先使用 Resend（HTTP API，不受 SMTP 連線問題影響）
+    const useResend = Boolean(process.env.RESEND_API_KEY);
+
+    if (useResend) {
+        const apiKey = process.env.RESEND_API_KEY;
+        const fromAddr = process.env.RESEND_FROM || 'ImobileBI <onboarding@resend.dev>';
+        const toAddr = process.env.CONTACT_TO || 'info@imobilebi.com';
+
+        try {
+            const resp = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: fromAddr,
+                    to: [toAddr],
+                    subject: '【新客戶預約】來自 ImobileBI 官網的 DEMO 演示請求',
+                    html: `
+                        <h2>您有一封新的 Demo 預約請求</h2>
+                        <p><strong>姓名：</strong> ${name}</p>
+                        <p><strong>公司名稱：</strong> ${company}</p>
+                        <p><strong>聯絡 Email：</strong> ${email}</p>
+                        <p><strong>聯絡電話：</strong> ${phone || '未提供'}</p>
+                        <hr>
+                        <p>此信件由 ImobileBI 官網表單自動發送。</p>
+                    `
+                })
+            });
+
+            if (!resp.ok) {
+                let errJson; try { errJson = await resp.json(); } catch (_) {}
+                return res.status(502).json({
+                    code: 'RESEND_API_ERROR',
+                    message: '郵件服務（Resend）回應失敗',
+                    details: errJson || { status: resp.status }
+                });
+            }
+
+            return res.status(200).json({ message: '郵件已成功寄出！' });
+        } catch (error) {
+            console.error('[Resend] 發送失敗:', error?.message || error);
+            return res.status(500).json({ code: 'RESEND_SEND_FAILED', message: 'Resend 發送失敗', details: error?.message });
+        }
+    }
+
+    // 否則回退到 SMTP
     const SMTP_HOST = process.env.SMTP_HOST;
     const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
     const SMTP_USER = process.env.SMTP_USER;
     const SMTP_PASS = process.env.SMTP_PASS;
 
-    // 若未設定或仍為預設 placeholder，立即回覆（避免連線逾時導致前端一直轉圈）
     const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
     if (looksLikePlaceholder(SMTP_HOST) || looksLikePlaceholder(SMTP_USER) || looksLikePlaceholder(SMTP_PASS)) {
         console.warn('[Email] SMTP 未設定或為預設值，略過寄信流程');
         return res.status(503).json({
             code: 'SMTP_NOT_CONFIGURED',
             message: '郵件服務尚未設定，請稍後再試。',
-            hint: '請於 Render 環境變數設定 SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS 後重試'
+            hint: '請於 Render 環境變數設定 SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS 後重試，或改用 RESEND_API_KEY'
         });
     }
 
-    // --- Nodemailer 設定 ---
     let transporter = createTransporterFromEnv();
 
     // 設定信件內容
