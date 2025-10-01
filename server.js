@@ -33,6 +33,11 @@ function createTransporterFromEnv() {
     const SMTP_SECURE = bool(process.env.SMTP_SECURE, SMTP_PORT === 465);
     const SMTP_REQUIRE_TLS = bool(process.env.SMTP_REQUIRE_TLS, false);
     const SMTP_TLS_REJECT_UNAUTH = bool(process.env.SMTP_TLS_REJECT_UNAUTHORIZED, true);
+    const n = (v, d) => (v===undefined ? d : Number(v));
+    const CONN_TIMEOUT = n(process.env.SMTP_CONN_TIMEOUT_MS, 10000);
+    const GREETING_TIMEOUT = n(process.env.SMTP_GREETING_TIMEOUT_MS, 7000);
+    const SOCKET_TIMEOUT = n(process.env.SMTP_SOCKET_TIMEOUT_MS, 15000);
+    const SMTP_DEBUG = bool(process.env.SMTP_DEBUG, false);
     return nodemailer.createTransport({
         host: SMTP_HOST,
         port: SMTP_PORT,
@@ -42,10 +47,12 @@ function createTransporterFromEnv() {
         pool: true,
         maxConnections: 2,
         maxMessages: 20,
-        connectionTimeout: 10000,
-        greetingTimeout: 7000,
-        socketTimeout: 15000,
-        tls: { rejectUnauthorized: SMTP_TLS_REJECT_UNAUTH }
+        connectionTimeout: CONN_TIMEOUT,
+        greetingTimeout: GREETING_TIMEOUT,
+        socketTimeout: SOCKET_TIMEOUT,
+        tls: { rejectUnauthorized: SMTP_TLS_REJECT_UNAUTH },
+        logger: SMTP_DEBUG,
+        debug: SMTP_DEBUG
     });
 }
 
