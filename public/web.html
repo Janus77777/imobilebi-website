@@ -306,10 +306,15 @@
             };
 
             try {
+                // 加入 15s 逾時，避免網路/郵件服務阻塞導致無限轉圈
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
                 const response = await fetch('/api/sendEmail', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
 
                 if (!response.ok) {
@@ -322,8 +327,15 @@
 
             } catch (error) {
                 console.error('表單提交錯誤:', error);
-                showModal('傳送失敗', '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。', false);
+                const isTimeout = error?.name === 'AbortError';
+                showModal(
+                    isTimeout ? '連線逾時' : '傳送失敗',
+                    isTimeout ? '目前伺服器或郵件服務較忙，請稍後再試或直接 E-mail 與我們聯繫。' : '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。',
+                    false
+                );
             } finally {
+                 // 總是清掉 timeout 並復原按鈕狀態
+                 try { clearTimeout(timeoutId); } catch (_) {}
                  submitBtn.disabled = false;
                  btnText.textContent = originalBtnText;
                  submitBtn.classList.remove('loading');

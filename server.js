@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 // 3. 設定中介軟體 (Middleware)
 app.use(cors()); // 允許跨來源請求
 app.use(express.json()); // 解析 JSON 格式的請求內容
+app.use(express.urlencoded({ extended: true })); // 解析表單 urlencoded（保險起見）
 app.use(express.static(path.join(__dirname, 'public'))); // 託管 public 資料夾中的靜態檔案 (例如您的 web.html)
 
 // 讓根路由回傳 landing page，避免 "Cannot GET /" 的錯誤
@@ -32,15 +33,31 @@ app.post('/api/sendEmail', async (req, res) => {
         return res.status(400).json({ message: '姓名、公司和 Email 為必填欄位。' });
     }
 
+    // 讀取 SMTP 設定
+    const SMTP_HOST = process.env.SMTP_HOST;
+    const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+    const SMTP_USER = process.env.SMTP_USER;
+    const SMTP_PASS = process.env.SMTP_PASS;
+
+    // 若未設定或仍為預設 placeholder，立即回覆（避免連線逾時導致前端一直轉圈）
+    const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
+    if (looksLikePlaceholder(SMTP_HOST) || looksLikePlaceholder(SMTP_USER) || looksLikePlaceholder(SMTP_PASS)) {
+        console.warn('[Email] SMTP 未設定或為預設值，略過寄信流程');
+        return res.status(503).json({ message: '郵件服務尚未設定，請稍後再試。' });
+    }
+
     // --- Nodemailer 設定 ---
     let transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,       // 例如: "smtp.gmail.com" 或您的公司郵件主機
-        port: process.env.SMTP_PORT || 587, // 通常是 587 (TLS) 或 465 (SSL)
-        secure: (process.env.SMTP_PORT || 587) == 465, // 如果是 465 port 就用 true
-        auth: {
-            user: process.env.SMTP_USER, // 您的發信信箱帳號
-            pass: process.env.SMTP_PASS, // 您的發信信箱密碼或應用程式密碼
-        },
+        host: SMTP_HOST,                    // 例如: "smtp.gmail.com" 或您的公司郵件主機
+        port: SMTP_PORT,                    // 通常是 587 (TLS) 或 465 (SSL)
+        secure: SMTP_PORT === 465,          // 如果是 465 port 就用 true
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+        pool: true,
+        maxConnections: 2,
+        maxMessages: 20,
+        connectionTimeout: 10000, // 10s 建立連線逾時
+        greetingTimeout: 7000,    // 7s 等待伺服器問候
+        socketTimeout: 15000      // 15s 任何 socket 操作逾時
     });
 
     // 設定信件內容
@@ -61,10 +78,16 @@ app.post('/api/sendEmail', async (req, res) => {
 
     // 5. 嘗試發送信件
     try {
+        console.log('[Email] 收到表單', { name, company, email, hasPhone: Boolean(phone) });
         await transporter.sendMail(mailOptions);
+        console.log('[Email] 寄送成功');
         res.status(200).json({ message: '郵件已成功寄出！' });
     } catch (error) {
-        console.error('郵件發送失敗:', error);
+        console.error('郵件發送失敗:', {
+            message: error?.message,
+            code: error?.code,
+            command: error?.command
+        });
         res.status(500).json({ message: '伺服器發生錯誤，郵件未能寄出。' });
     }
 });
