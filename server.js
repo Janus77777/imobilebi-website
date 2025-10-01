@@ -29,10 +29,15 @@ function createTransporterFromEnv() {
     const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
     const SMTP_USER = process.env.SMTP_USER;
     const SMTP_PASS = process.env.SMTP_PASS;
+    const bool = (v, d=false) => (v===undefined? d : /^(1|true|yes|y|on)$/i.test(String(v)));
+    const SMTP_SECURE = bool(process.env.SMTP_SECURE, SMTP_PORT === 465);
+    const SMTP_REQUIRE_TLS = bool(process.env.SMTP_REQUIRE_TLS, false);
+    const SMTP_TLS_REJECT_UNAUTH = bool(process.env.SMTP_TLS_REJECT_UNAUTHORIZED, true);
     return nodemailer.createTransport({
         host: SMTP_HOST,
         port: SMTP_PORT,
-        secure: SMTP_PORT === 465,
+        secure: SMTP_SECURE,
+        requireTLS: SMTP_REQUIRE_TLS,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
         pool: true,
         maxConnections: 2,
@@ -40,6 +45,7 @@ function createTransporterFromEnv() {
         connectionTimeout: 10000,
         greetingTimeout: 7000,
         socketTimeout: 15000,
+        tls: { rejectUnauthorized: SMTP_TLS_REJECT_UNAUTH }
     });
 }
 
@@ -98,18 +104,7 @@ app.post('/api/sendEmail', async (req, res) => {
     }
 
     // --- Nodemailer 設定 ---
-    let transporter = nodemailer.createTransport({
-        host: SMTP_HOST,                    // 例如: "smtp.gmail.com" 或您的公司郵件主機
-        port: SMTP_PORT,                    // 通常是 587 (TLS) 或 465 (SSL)
-        secure: SMTP_PORT === 465,          // 如果是 465 port 就用 true
-        auth: { user: SMTP_USER, pass: SMTP_PASS },
-        pool: true,
-        maxConnections: 2,
-        maxMessages: 20,
-        connectionTimeout: 10000, // 10s 建立連線逾時
-        greetingTimeout: 7000,    // 7s 等待伺服器問候
-        socketTimeout: 15000      // 15s 任何 socket 操作逾時
-    });
+    let transporter = createTransporterFromEnv();
 
     // 設定信件內容
     let mailOptions = {
