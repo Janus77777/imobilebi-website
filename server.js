@@ -24,6 +24,17 @@ app.get('/', (_req, res) => {
 });
 
 // 4. 建立郵件發送的 API 端點
+// 健康檢查：前端可用此端點判斷 SMTP 是否已設定
+app.get('/api/health', (_req, res) => {
+    const SMTP_HOST = process.env.SMTP_HOST;
+    const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+    const SMTP_USER = process.env.SMTP_USER;
+    const SMTP_PASS = process.env.SMTP_PASS;
+    const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
+    const smtpConfigured = !(looksLikePlaceholder(SMTP_HOST) || looksLikePlaceholder(SMTP_USER) || looksLikePlaceholder(SMTP_PASS));
+    res.json({ ok: true, smtpConfigured, node: process.version, port: PORT });
+});
+
 app.post('/api/sendEmail', async (req, res) => {
     // 從請求中獲取表單資料
     const { name, company, email, phone } = req.body;
@@ -43,7 +54,11 @@ app.post('/api/sendEmail', async (req, res) => {
     const looksLikePlaceholder = (v) => !v || /your-email|smtp\.your-email-provider\.com/i.test(String(v));
     if (looksLikePlaceholder(SMTP_HOST) || looksLikePlaceholder(SMTP_USER) || looksLikePlaceholder(SMTP_PASS)) {
         console.warn('[Email] SMTP 未設定或為預設值，略過寄信流程');
-        return res.status(503).json({ message: '郵件服務尚未設定，請稍後再試。' });
+        return res.status(503).json({
+            code: 'SMTP_NOT_CONFIGURED',
+            message: '郵件服務尚未設定，請稍後再試。',
+            hint: '請於 Render 環境變數設定 SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS 後重試'
+        });
     }
 
     // --- Nodemailer 設定 ---
@@ -88,7 +103,11 @@ app.post('/api/sendEmail', async (req, res) => {
             code: error?.code,
             command: error?.command
         });
-        res.status(500).json({ message: '伺服器發生錯誤，郵件未能寄出。' });
+        res.status(500).json({
+            code: error?.code || 'MAIL_SEND_FAILED',
+            message: '伺服器發生錯誤，郵件未能寄出。',
+            details: error?.message || undefined
+        });
     }
 });
 

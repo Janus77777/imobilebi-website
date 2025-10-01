@@ -318,7 +318,18 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`伺服器錯誤: ${response.statusText}`);
+                    let serverMsg = '';
+                    let serverCode = '';
+                    try {
+                        const errJson = await response.json();
+                        serverMsg = errJson?.message || '';
+                        serverCode = errJson?.code || '';
+                    } catch (_) {
+                        try { serverMsg = await response.text(); } catch (_) {}
+                    }
+                    const msg = serverMsg || `HTTP ${response.status}`;
+                    const codeSuffix = serverCode ? ` [${serverCode}]` : '';
+                    throw new Error(`伺服器錯誤: ${msg}${codeSuffix}`);
                 }
 
                 const result = await response.json();
@@ -328,11 +339,13 @@
             } catch (error) {
                 console.error('表單提交錯誤:', error);
                 const isTimeout = error?.name === 'AbortError';
-                showModal(
-                    isTimeout ? '連線逾時' : '傳送失敗',
-                    isTimeout ? '目前伺服器或郵件服務較忙，請稍後再試或直接 E-mail 與我們聯繫。' : '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。',
-                    false
-                );
+                const msg = String(error?.message || '未知錯誤');
+                const friendly = isTimeout
+                    ? '目前伺服器或郵件服務較忙，請稍後再試或直接 E-mail 與我們聯繫。'
+                    : (msg.includes('SMTP_NOT_CONFIGURED') || msg.includes('郵件服務尚未設定'))
+                        ? '郵件服務尚未設定，我們會盡快修復。請稍後再試或直接 E-mail 與我們聯繫。'
+                        : '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。';
+                showModal(isTimeout ? '連線逾時' : '傳送失敗', friendly, false);
             } finally {
                  // 總是清掉 timeout 並復原按鈕狀態
                  try { clearTimeout(timeoutId); } catch (_) {}
