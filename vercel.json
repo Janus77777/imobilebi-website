@@ -19,10 +19,5 @@
       "src": "/(.*)",
       "dest": "/public/$1"
     }
-  ],
-  "env": {
-    "RESEND_API_KEY": "@resend_api_key",
-    "RESEND_FROM": "@resend_from",
-    "CONTACT_TO": "@contact_to"
-  }
+  ]
 }
