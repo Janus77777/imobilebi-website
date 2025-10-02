@@ -48,10 +48,16 @@ export default async function handler(req, res) {
 
             if (!resp.ok) {
                 let errJson; try { errJson = await resp.json(); } catch (_) {}
+                console.error('[Resend] API 錯誤:', {
+                    status: resp.status,
+                    statusText: resp.statusText,
+                    error: errJson
+                });
                 return res.status(502).json({
                     code: 'RESEND_API_ERROR',
                     message: '郵件服務（Resend）回應失敗',
-                    details: errJson || { status: resp.status }
+                    details: errJson || { status: resp.status },
+                    hint: errJson?.message || '請檢查 Resend API Key 與 FROM 地址設定'
                 });
             }
 
