@@ -1,373 +1,808 @@
 <!DOCTYPE html>
 <html lang="zh-Hant" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ImobileBI：您的數據戰情室，拖拉拽即刻實現</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #0F172A; /* Slate 900 */
-            color: #E2E8F0; /* Slate 200 */
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background-color: #0f172a; /* Slate 900 */
+        color: #e2e8f0; /* Slate 200 */
+      }
+      .hero-gradient {
+        background: radial-gradient(
+          ellipse at center,
+          rgba(14, 165, 233, 0.15) 0%,
+          rgba(15, 23, 42, 0) 60%
+        );
+      }
+      .highlight-cyan {
+        color: #22d3ee;
+      }
+      .highlight-amber {
+        color: #f59e0b;
+      }
+      .btn-primary {
+        background: #0ea5e9; /* Sky 500 */
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      .btn-primary:hover {
+        background: #0284c7; /* Sky 600 */
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2),
+          0 4px 6px -2px rgba(14, 165, 233, 0.1);
+      }
+      .btn-primary.loading::after {
+        content: "";
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        top: 50%;
+        left: 50%;
+        margin-top: -12px;
+        margin-left: -12px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
-        .hero-gradient {
-            background: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.15) 0%, rgba(15, 23, 42, 0) 60%);
+      }
+      .form-input {
+        background-color: #1e293b; /* Slate 800 */
+        border-color: #334155; /* Slate 700 */
+        color: #cbd5e1; /* Slate 300 */
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: #0ea5e9; /* Sky 500 */
+        box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.4);
+      }
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .logo-wall img {
+        transition: transform 0.3s ease;
+      }
+      .logo-wall img:hover {
+        transform: scale(1.05);
+      }
+      :root {
+        --hero-base-width: 1280px;
+        --hero-max-width: 1440px;
+        --hero-scale: 1;
+      }
+      @media (min-width: 768px) {
+        :root {
+          --hero-scale: clamp(
+            0.75,
+            calc(min(100vw, var(--hero-max-width)) / var(--hero-base-width)),
+            1.15
+          );
         }
-        .highlight-cyan { color: #22d3ee; }
-        .highlight-amber { color: #f59e0b; }
-        .btn-primary {
-            background: #0ea5e9; /* Sky 500 */
-            transition: all 0.3s ease;
-            position: relative;
+      }
+      .hero-wrapper {
+        width: min(
+          100%,
+          calc(var(--hero-base-width) * var(--hero-scale)),
+          var(--hero-max-width)
+        );
+        margin-inline: auto;
+        padding-inline: clamp(1.5rem, calc(3rem * var(--hero-scale)), 3rem);
+        box-sizing: border-box;
+      }
+      @media (min-width: 768px) {
+        .hero-wrapper {
+          padding-inline: calc(48px * var(--hero-scale));
         }
-        .btn-primary:hover {
-            background: #0284c7; /* Sky 600 */
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.2), 0 4px 6px -2px rgba(14, 165, 233, 0.1);
+      }
+      .hero-grid {
+        display: grid;
+        gap: clamp(2rem, calc(2.5rem * var(--hero-scale)), 3rem);
+        justify-items: center;
+      }
+      @media (min-width: 768px) {
+        .hero-grid {
+          grid-template-columns: calc(680px * var(--hero-scale))
+            calc(460px * var(--hero-scale));
+          align-items: center;
+          justify-content: center;
         }
-        .btn-primary.loading::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            top: 50%;
-            left: 50%;
-            margin-top: -12px;
-            margin-left: -12px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+      }
+      .hero-text {
+        max-width: calc(680px * var(--hero-scale));
+        margin-inline: auto;
+      }
+      @media (min-width: 768px) {
+        .hero-text {
+          margin-inline: 0;
+          justify-self: start;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .form-input {
-            background-color: #1E293B; /* Slate 800 */
-            border-color: #334155; /* Slate 700 */
-            color: #CBD5E1; /* Slate 300 */
+      }
+      .hero-title {
+        font-size: clamp(2.25rem, 8vw, 3rem);
+        line-height: 1.08;
+      }
+      .hero-title-highlight {
+        font-size: clamp(1.9rem, 6.5vw, 2.6rem);
+        display: inline-block;
+        line-height: 1.08;
+      }
+      .hero-lead {
+        font-size: clamp(1.05rem, 3.5vw, 1.25rem);
+        line-height: 1.7;
+      }
+      .hero-form {
+        width: 100%;
+        max-width: min(100%, 26rem);
+        justify-self: center;
+      }
+      .demo-video-shell {
+        max-width: 960px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(56, 189, 248, 0.05));
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 60px -30px rgba(15, 118, 255, 0.45);
+        padding: clamp(1rem, 3vw, 1.5rem);
+      }
+      .demo-video-wrapper {
+        position: relative;
+        border-radius: 1.25rem;
+        overflow: hidden;
+      }
+      .demo-video {
+        display: block;
+        width: 100%;
+        background: #0f172a;
+        aspect-ratio: 16 / 9;
+      }
+      .demo-caption {
+        margin-top: clamp(1rem, 2vw, 1.5rem);
+        color: #cbd5e1;
+      }
+      .demo-cta {
+        margin-top: clamp(1rem, 2vw, 1.5rem);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.75rem;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+        color: #fff;
+        font-weight: 600;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+      .demo-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 35px -12px rgba(56, 189, 248, 0.6);
+      }
+      .case-visual {
+        max-width: clamp(320px, 45vw, 560px);
+        width: 100%;
+        margin-inline: auto;
+        display: block;
+      }
+      @media (min-width: 768px) {
+        .hero-title {
+          font-size: calc(64px * var(--hero-scale));
+          line-height: 1.05;
         }
-        .form-input:focus {
-            outline: none;
-            border-color: #0ea5e9; /* Sky 500 */
-            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.4);
+        .hero-title-highlight {
+          font-size: calc(52px * var(--hero-scale));
+          display: inline-block;
+          line-height: 1.05;
         }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        .hero-lead {
+          font-size: calc(20px * var(--hero-scale));
+          line-height: 1.7;
         }
-        .is-visible {
-            opacity: 1;
-            transform: translateY(0);
+        .hero-form {
+          max-width: calc(460px * var(--hero-scale));
         }
-        .logo-wall img {
-            transition: transform 0.3s ease;
-        }
-        .logo-wall img:hover {
-            transform: scale(1.05);
-        }
+      }
     </style>
-</head>
-<body class="overflow-x-hidden">
+  </head>
+  <body class="overflow-x-hidden">
+    <section
+      id="top"
+      class="relative min-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-center overflow-hidden hero-gradient px-4 lg:px-12 py-16 md:py-20"
+    >
+      <div
+        class="flex items-center justify-center md:justify-start gap-5 z-10 mb-8 md:mb-0 md:absolute md:top-8 md:left-20"
+      >
+        <img
+          src="assets/logo-imobilebi.svg"
+          alt="ImobileBI Logo"
+          class="h-16 w-auto drop-shadow-lg"
+        />
+        <span
+          class="text-lg md:text-xl font-semibold tracking-tight text-white/90"
+          >ImobileBI</span
+        >
+      </div>
+      <div class="hero-wrapper hero-grid">
+        <div class="hero-text text-left">
+          <!-- 主標題 -->
+          <h1
+            class="hero-title font-black text-white leading-tight mb-6 fade-in"
+          >
+            讓數據變簡單<br />
+            <span
+              class="hero-title-highlight bg-gradient-to-r from-cyan-300 to-sky-400 bg-clip-text text-transparent"
+            >
+              看懂經營全貌<br />就從今天開始
+            </span>
+          </h1>
 
-    <section id="top" class="relative min-h-screen flex flex-col lg:flex-row items-center justify-center overflow-hidden hero-gradient px-4 py-16 md:py-20">
-        <div class="flex items-center justify-center md:justify-start gap-3 z-10 mb-8 md:mb-0 md:absolute md:top-8 md:left-8">
-            <img src="assets/logo-imobilebi.svg" alt="ImobileBI Logo" class="h-12 w-auto drop-shadow-lg">
-            <span class="text-lg md:text-xl font-semibold tracking-tight text-white/90">ImobileBI</span>
-        </div>
-        <div class="container mx-auto w-full max-w-6xl grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
-            <div class="text-center md:text-left lg:pr-6 xl:pr-10">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-white leading-tight mb-4 fade-in">
-                    <span class="block">您的數據戰情室，</span>
-                    <span class="block highlight-cyan">只需拖曳即刻實現</span>
-                </h1>
-                <p class="text-lg md:text-xl text-slate-300 mb-6 fade-in" style="transition-delay: 150ms;">
-                    停止猜測，開始「看見」您生意的全貌。<br>將雜亂的數據，轉化為令人驚豔的互動式儀表板。
-                </p>
-                <p class="text-base text-slate-400 fade-in" style="transition-delay: 300ms;">
-                    「您的數據正在沉睡，而您的團隊正在為報表內耗。是時候喚醒它了。」
-                </p>
-            </div>
+          <!-- 說明文字 -->
+          <p
+            class="hero-lead text-slate-300 mb-8 fade-in"
+            style="transition-delay: 100ms"
+          >
+            整合日常營運數據，快速掌握重點、即時做決策。<br />
+            讓 ImobileBI 協助您，將數據真正用起來。
+          </p>
 
-            <div id="contact-form-container" class="bg-slate-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-slate-700 fade-in mt-8 md:mt-0 w-full max-w-lg md:ml-auto" style="transition-delay: 450ms;">
-                <h2 class="text-2xl font-bold text-white text-center mb-2">預約 30 分鐘線上演示</h2>
-                <p class="text-center text-slate-400 mb-6">填寫下方資訊，我們的數據顧問將盡快與您聯繫。</p>
-                <form id="contactForm">
-                    <div class="space-y-4">
-                        <input type="text" id="name" name="name" placeholder="您的姓名" class="w-full p-3 rounded-lg form-input" required>
-                        <input type="text" id="company" name="company" placeholder="公司名稱" class="w-full p-3 rounded-lg form-input" required>
-                        <input type="email" id="email" name="email" placeholder="公司 Email" class="w-full p-3 rounded-lg form-input" required>
-                        <input type="tel" id="phone" name="phone" placeholder="聯絡電話" class="w-full p-3 rounded-lg form-input">
-                        <button type="submit" id="submit-btn" class="w-full p-4 text-lg font-bold text-white rounded-lg btn-primary shadow-lg">
-                            <span class="btn-text">立即預約，看 DEMO</span>
-                        </button>
-                    </div>
-                </form>
-                <p class="text-center text-slate-500 text-sm mt-4">
-                    或直接來信：<a href="mailto:info@imobilebi.com" class="text-sky-400 hover:text-sky-300">info@imobilebi.com</a>
-                </p>
-            </div>
+          <!-- 重點優勢 -->
+          <div
+            class="inline-flex items-center gap-4 mb-6 fade-in"
+            style="transition-delay: 200ms"
+          >
+            <span
+              class="px-4 py-2 rounded-full bg-sky-400/10 text-sky-300 border border-sky-500/30 text-sm font-medium"
+            >
+              一頁式互動儀表板
+            </span>
+            <span class="text-slate-400">|</span>
+            <span class="text-slate-300 text-sm"
+              >零程式碼 · 即時更新 · 隨時隨地</span
+            >
+          </div>
         </div>
+
+        <div
+          id="contact-form-container"
+          class="hero-form bg-slate-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-slate-700 fade-in mt-8 md:mt-0 w-full"
+          style="transition-delay: 450ms"
+        >
+          <h2 class="text-2xl font-bold text-white text-center mb-2">
+            預約 30 分鐘線上演示
+          </h2>
+          <p class="text-center text-slate-400 mb-6">
+            填寫下方資訊，我們的數據顧問將盡快與您聯繫。
+          </p>
+          <form id="contactForm">
+            <div class="space-y-4">
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="您的姓名"
+                class="w-full p-3 rounded-lg form-input"
+                required
+              />
+              <input
+                type="text"
+                id="company"
+                name="company"
+                placeholder="公司名稱"
+                class="w-full p-3 rounded-lg form-input"
+                required
+              />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="公司 Email"
+                class="w-full p-3 rounded-lg form-input"
+                required
+              />
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="聯絡電話"
+                class="w-full p-3 rounded-lg form-input"
+              />
+              <button
+                type="submit"
+                id="submit-btn"
+                class="w-full p-4 text-lg font-bold text-white rounded-lg btn-primary shadow-lg"
+              >
+                <span class="btn-text">立即預約，看 DEMO</span>
+              </button>
+            </div>
+          </form>
+          <p class="text-center text-slate-500 text-sm mt-4">
+            或直接來信：<a
+              href="mailto:info@imobilebi.com"
+              class="text-sky-400 hover:text-sky-300"
+              >info@imobilebi.com</a
+            >
+          </p>
+        </div>
+      </div>
     </section>
 
-    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 p-4">
-        <div class="bg-slate-800 rounded-xl p-8 text-center shadow-2xl border border-slate-700 max-w-sm mx-auto">
-            <h3 id="modal-title" class="text-2xl font-bold text-cyan-400 mb-4"></h3>
-            <p id="modal-message" class="text-slate-300 mb-6"></p>
-            <button id="close-modal" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-lg">關閉</button>
-        </div>
+    <div
+      id="message-modal"
+      class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 p-4"
+    >
+      <div
+        class="bg-slate-800 rounded-xl p-8 text-center shadow-2xl border border-slate-700 max-w-sm mx-auto"
+      >
+        <h3 id="modal-title" class="text-2xl font-bold text-cyan-400 mb-4"></h3>
+        <p id="modal-message" class="text-slate-300 mb-6"></p>
+        <button
+          id="close-modal"
+          class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-bold rounded-lg"
+        >
+          關閉
+        </button>
+      </div>
     </div>
 
-
-    <div id="image-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
-        <div class="relative max-w-5xl w-full">
-            <button id="close-image-modal" class="absolute -top-3 -right-3 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold" aria-label="關閉圖片">×</button>
-            <img id="modal-image" src="" alt="放大圖片" class="w-full rounded-2xl shadow-2xl border border-slate-700 bg-slate-900 object-contain max-h-[80vh]">
-        </div>
+    <div
+      id="image-modal"
+      class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4"
+    >
+      <div class="relative max-w-5xl w-full">
+        <button
+          id="close-image-modal"
+          class="absolute -top-3 -right-3 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold"
+          aria-label="關閉圖片"
+        >
+          ×
+        </button>
+        <img
+          id="modal-image"
+          src=""
+          alt="放大圖片"
+          class="w-full rounded-2xl shadow-2xl border border-slate-700 bg-slate-900 object-contain max-h-[80vh]"
+        />
+      </div>
     </div>
 
     <section class="py-20 md:py-28 px-4">
-        <div class="container mx-auto text-center max-w-4xl">
-            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">還在忍受這種<span class="highlight-amber">「數據惡夢」</span>嗎？</h2>
-            <p class="text-lg text-slate-400 mb-12 fade-in">您需要的不是更多的報表，而是一個能讓您「一秒看懂」的智慧駕駛艙。</p>
-            <div class="grid md:grid-cols-3 gap-8 text-left">
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in">
-                    <h3 class="text-xl font-bold text-white mb-2">報表等到天荒地老？</h3>
-                    <p class="text-slate-400">各部門數據散落各處，光是匯總就耗掉半天，臨時提問更是遙遙無期。</p>
-                </div>
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in" style="transition-delay: 150ms;">
-                    <h3 class="text-xl font-bold text-white mb-2">數字密密麻麻，重點在哪？</h3>
-                    <p class="text-slate-400">決策會議變成了「大家來找碴」，看不出潛在的機會與風險。</p>
-                </div>
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in" style="transition-delay: 300ms;">
-                    <h3 class="text-xl font-bold text-white mb-2">想看數據還要求人？</h3>
-                    <p class="text-slate-400">離開辦公室就彷彿與世隔絕，錯失決策先機。</p>
-                </div>
-            </div>
+      <div class="container mx-auto text-center max-w-4xl">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">
+          還沒導入 BI 系統的你，可能也有這些煩惱：
+        </h2>
+        <p class="text-lg text-slate-400 mb-12 fade-in">
+          您需要的不是更多
+          Excel，而是一個能幫您把資料「整理清楚、看得懂」的智慧儀表板。
+        </p>
+        <div class="grid md:grid-cols-3 gap-8 text-left">
+          <div
+            class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in hover:border-sky-500/50 transition-all"
+          >
+            <div class="text-4xl mb-4">📂</div>
+            <h3 class="text-xl font-bold text-white mb-3 leading-tight">
+              花很多時間找資料，<br />卻無法快速回答問題？
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              數據散落在不同系統或部門，彙整慢、分析更難。決策效率總是慢半拍。
+            </p>
+          </div>
+          <div
+            class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in hover:border-sky-500/50 transition-all"
+            style="transition-delay: 150ms"
+          >
+            <div class="text-4xl mb-4">💼</div>
+            <h3 class="text-xl font-bold text-white mb-3 leading-tight">
+              會議時看不到重點，<br />只能憑感覺決策？
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              資料看起來很多，但缺乏整合與整理，風險和機會都藏在細節裡。
+            </p>
+          </div>
+          <div
+            class="bg-slate-800 p-6 rounded-xl border border-slate-700 fade-in hover:border-sky-500/50 transition-all"
+            style="transition-delay: 300ms"
+          >
+            <div class="text-4xl mb-4">📱</div>
+            <h3 class="text-xl font-bold text-white mb-3 leading-tight">
+              即使有數據，<br />也難即時掌握？
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              臨時出差、主管提問時還得回公司查資料，影響應變速度。手機也能輕鬆查詢，即時做出反應。
+            </p>
+          </div>
         </div>
+      </div>
     </section>
 
     <section class="py-20 md:py-28 px-4 bg-slate-900/50">
-        <div class="container mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">三大超能力，讓您決策<span class="highlight-cyan">遙遙領先</span></h2>
-            <p class="text-lg text-slate-400 max-w-3xl mx-auto mb-16 fade-in">告別報表地獄，數據從未如此「性感」。</p>
-            <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
-                <div class="text-center p-6 fade-in">
-                    <img src="assets/feature-visual.png" alt="電影級視覺化" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
-                    <h3 class="text-2xl font-bold text-white mb-2">電影級視覺化</h3>
-                    <p class="text-slate-400">超過 100 種圖表與酷炫 3D 動效，打造讓老闆和客戶都驚豔的戰情室。</p>
-                </div>
-                <div class="text-center p-6 fade-in" style="transition-delay: 150ms;">
-                    <img src="assets/feature-integration.png" alt="全系統一鍵接入" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
-                    <h3 class="text-2xl font-bold text-white mb-2">全系統一鍵接入</h3>
-                    <p class="text-slate-400">無論是資料庫、雲端、API 還是 Excel，都能輕鬆連接，告別數據孤島。</p>
-                </div>
-                <div class="text-center p-6 fade-in" style="transition-delay: 300ms;">
-                    <img src="assets/feature-easy.png" alt="像玩遊戲一樣簡單" class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105" data-enlarge>
-                    <h3 class="text-2xl font-bold text-white mb-2">像玩遊戲一樣簡單</h3>
-                    <p class="text-slate-400">真正零程式碼，業務人員也能上手，用拖拉拽取代複雜語法。</p>
-                </div>
-            </div>
+      <div class="container mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">
+          三大關鍵能力，讓決策<span class="highlight-cyan">更簡單、更即時</span>
+        </h2>
+        <p class="text-lg text-slate-400 max-w-3xl mx-auto mb-16 fade-in">
+          協助企業跨出第一步，從日常 Excel 邁向真正數據驅動的決策流程。
+        </p>
+        <div class="max-w-5xl mx-auto grid gap-10 md:gap-12">
+          <div class="text-center fade-in">
+            <img
+              src="assets/case-membership.png"
+              alt="會員發展分析儀表板"
+              class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105 w-full max-w-3xl"
+              data-enlarge
+            />
+            <h3 class="text-2xl font-bold text-white mb-2">
+              清晰易讀的視覺化圖表
+            </h3>
+            <p class="text-slate-400">
+              支援多樣化圖表形式與互動效果，讓資料一目了然、重點自然浮現。
+            </p>
+          </div>
+          <div class="text-center fade-in" style="transition-delay: 150ms">
+            <img
+              src="assets/feature-integration.png"
+              alt="資料整合不再是難題
+"
+              class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105 w-full max-w-3xl"
+              data-enlarge
+            />
+            <h3 class="text-2xl font-bold text-white mb-2">
+              資料整合不再是難題
+            </h3>
+            <p class="text-slate-400">
+              無論是
+              Excel、資料庫還是雲端系統，都能輕鬆接入，省下繁瑣轉檔與手動彙整時間。
+            </p>
+          </div>
+          <div class="text-center fade-in" style="transition-delay: 300ms">
+            <img
+              src="assets/feature-easy.png"
+              alt="像玩遊戲一樣簡單"
+              class="rounded-xl mx-auto mb-6 shadow-lg cursor-zoom-in transition-transform duration-300 hover:scale-105 w-full max-w-3xl"
+              data-enlarge
+            />
+            <h3 class="text-2xl font-bold text-white mb-2">像玩遊戲一樣簡單</h3>
+            <p class="text-slate-400">
+              真正零程式碼，業務人員也能上手，用拖拉拽取代複雜語法。
+            </p>
+          </div>
         </div>
+      </div>
     </section>
 
-     <section class="py-20 md:py-28 px-4">
-        <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
-            <div class="fade-in">
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">看看他們如何用 ImobileBI <br><span class="highlight-amber">決勝千里</span></h2>
-                <ul class="space-y-4 text-lg">
-                    <li class="flex items-start">
-                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
-                        <p><strong class="text-white">智慧工廠：</strong>即時監控產線良率與設備狀態。</p>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
-                         <p><strong class="text-white">智能倉儲：</strong>透過 3D 可視化，一眼看穿庫存與物流。</p>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
-                         <p><strong class="text-white">ESG 永續經營：</strong>將複雜指標化為清晰的管理儀表板。</p>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
-                         <p><strong class="text-white">零售龍頭：</strong>從集團、商品到單店的營運表現，一頁掌握。</p>
-                    </li>
-                </ul>
-            </div>
-            <div class="fade-in" style="transition-delay: 150ms;">
-                <img src="assets/case-smart-factory.png" alt="智慧工廠監控戰情室" class="rounded-2xl shadow-2xl w-full">
-            </div>
+    <section class="py-20 md:py-28 px-4">
+      <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div class="fade-in">
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+            看看他們如何用 ImobileBI <br /><span class="highlight-amber"
+              >決勝千里</span
+            >
+          </h2>
+          <ul class="space-y-4 text-lg">
+            <li class="flex items-start">
+              <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+              <p>
+                <strong class="text-white">智慧工廠：</strong
+                >即時監控產線良率與設備狀態。
+              </p>
+            </li>
+            <li class="flex items-start">
+              <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+              <p>
+                <strong class="text-white">智能倉儲：</strong>透過 3D
+                可視化，一眼看穿庫存與物流。
+              </p>
+            </li>
+            <li class="flex items-start">
+              <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+              <p>
+                <strong class="text-white">ESG 永續經營：</strong
+                >將複雜指標化為清晰的管理儀表板。
+              </p>
+            </li>
+            <li class="flex items-start">
+              <span class="text-cyan-400 mr-3 mt-1">&#10004;</span>
+              <p>
+                <strong class="text-white">零售龍頭：</strong
+                >從集團、商品到單店的營運表現，一頁掌握。
+              </p>
+            </li>
+          </ul>
         </div>
+        <div class="fade-in" style="transition-delay: 150ms">
+          <img
+            src="assets/case-smart-factory.png"
+            alt="智慧工廠監控戰情室"
+            class="case-visual rounded-2xl shadow-2xl w-full"
+          />
+        </div>
+      </div>
     </section>
 
     <section class="py-20 md:py-28 px-4 bg-slate-900/50">
-        <div class="container mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">超過 <span class="highlight-cyan">500+</span> 知名企業已選擇德昂資訊</h2>
-            <p class="text-lg text-slate-400 mb-12 fade-in">我們不僅提供頂尖工具，更提供落地的專業服務。</p>
-            <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 md:gap-8 items-center logo-wall fade-in">
-                <img src="assets/logo-carrefour.jpg" alt="家樂福 Logo" class="mx-auto">
-                <img src="assets/logo-taipei101.jpg" alt="台北101 Logo" class="mx-auto">
-                <img src="assets/logo-hanlai.png" alt="漢來美食 Logo" class="mx-auto">
-                <img src="assets/logo-taiwan-sakura.jpg" alt="台灣櫻花 Logo" class="mx-auto">
-                <img src="assets/logo-nec.png" alt="NEC Logo" class="mx-auto">
-                <img src="assets/logo-taipei-city.png" alt="臺北市政府 Logo" class="mx-auto">
-            </div>
+      <div class="container mx-auto text-center max-w-5xl">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">
+          實際操作 DEMO
+        </h2>
+        <p class="text-lg text-slate-400 mb-12 fade-in">
+          10分鐘帶您快速了解ImobileBI。
+        </p>
+        <div class="demo-video-shell fade-in">
+          <div class="demo-video-wrapper">
+            <video
+              class="demo-video"
+              controls
+              preload="metadata"
+              playsinline
+            >
+              <source src="assets/demo-preview.mp4#t=4" type="video/mp4" />
+              您的瀏覽器不支援影片播放，請改用 Chrome、Safari 或 Edge。
+            </video>
+          </div>
+          <p class="demo-caption text-sm md:text-base">
+            影片內容僅供內部示意，正式展示會依照您的產業資料客製化儀表板。
+          </p>
+          <a href="#contact-form-container" class="demo-cta">
+            預約完整線上演示
+          </a>
         </div>
+      </div>
+    </section>
+
+    <section class="py-20 md:py-28 px-4 bg-slate-900/50">
+      <div class="container mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 fade-in">
+          超過 <span class="highlight-cyan">500+</span> 知名企業已選擇德昂資訊
+        </h2>
+        <p class="text-lg text-slate-400 mb-12 fade-in">
+          我們不僅提供頂尖工具，更提供落地的專業服務。
+        </p>
+        <div
+          class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 md:gap-8 items-center logo-wall fade-in"
+        >
+          <img
+            src="assets/logo-carrefour.jpg"
+            alt="家樂福 Logo"
+            class="mx-auto"
+          />
+          <img
+            src="assets/logo-taipei101.jpg"
+            alt="台北101 Logo"
+            class="mx-auto"
+          />
+          <img
+            src="assets/logo-hanlai.png"
+            alt="漢來美食 Logo"
+            class="mx-auto"
+          />
+          <img
+            src="assets/logo-taiwan-sakura.jpg"
+            alt="台灣櫻花 Logo"
+            class="mx-auto"
+          />
+          <img src="assets/logo-nec.png" alt="NEC Logo" class="mx-auto" />
+          <img
+            src="assets/logo-taipei-city.png"
+            alt="臺北市政府 Logo"
+            class="mx-auto"
+          />
+        </div>
+      </div>
     </section>
 
     <section class="py-20 md:py-32 px-4 text-center">
-        <div class="container mx-auto max-w-3xl fade-in">
-            <h2 class="text-4xl md:text-5xl font-black text-white mb-4">您的下一個商業突破，<br>就藏在<span class="highlight-cyan">數據</span>裡。</h2>
-            <p class="text-lg text-slate-300 mb-8">別再讓機會從報表的縫隙中溜走。立即預約，我們將向您展示 ImobileBI 如何為您的企業點亮數據的價值。</p>
-            <a href="#top" class="inline-block px-12 py-4 text-xl font-bold text-white rounded-lg btn-primary shadow-lg">
-                立即預約，打造我的專屬戰情室
-            </a>
-        </div>
+      <div class="container mx-auto max-w-3xl fade-in">
+        <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+          您的下一個商業突破，<br />就藏在<span class="highlight-cyan"
+            >數據</span
+          >裡。
+        </h2>
+        <p class="text-lg text-slate-300 mb-8">
+          別再讓機會從報表的縫隙中溜走。立即預約，我們將向您展示 ImobileBI
+          如何為您的企業點亮數據的價值。
+        </p>
+        <a
+          href="#top"
+          class="inline-block px-12 py-4 text-xl font-bold text-white rounded-lg btn-primary shadow-lg"
+        >
+          立即預約，打造我的專屬戰情室
+        </a>
+      </div>
     </section>
 
     <footer class="bg-slate-900 py-12 px-4">
-        <div class="container mx-auto text-center text-slate-400">
-            <p class="font-bold text-lg text-white mb-2">關於我們：德昂資訊，您的數據價值創造者</p>
-            <p class="max-w-2xl mx-auto mb-4 text-sm">
-                成立於 2009 年，專注於資料倉儲與商業智慧領域。我們擁有超過 16 年的豐富專案經驗，提供從顧問規劃到系統開發的一條龍解決方案，致力於為企業創造數據的真實價值。
-            </p>
-            <div class="text-sm text-slate-400 space-y-1 mt-6">
-                <p>電話：<a href="tel:02-7724-8202" class="hover:text-sky-400">02-7724-8202</a></p>
-                <p>信箱：<a href="mailto:info@imobilebi.com" class="hover:text-sky-400">info@imobilebi.com</a></p>
-                <p>地址：台北市松山區南京東路四段1號11樓</p>
-            </div>
-            <p class="text-xs text-slate-500 mt-6">&copy; 2025 德昂資訊有限公司. All Rights Reserved.</p>
+      <div class="container mx-auto text-center text-slate-400">
+        <p class="font-bold text-lg text-white mb-2">
+          關於我們：德昂資訊，您的數據價值創造者
+        </p>
+        <p class="max-w-2xl mx-auto mb-4 text-sm">
+          成立於 2009 年，專注於資料倉儲與商業智慧領域。我們擁有超過 16
+          年的豐富專案經驗，提供從顧問規劃到系統開發的一條龍解決方案，致力於為企業創造數據的真實價值。
+        </p>
+        <div class="text-sm text-slate-400 space-y-1 mt-6">
+          <p>
+            電話：<a href="tel:02-7724-8202" class="hover:text-sky-400"
+              >02-7724-8202</a
+            >
+          </p>
+          <p>
+            信箱：<a href="mailto:info@imobilebi.com" class="hover:text-sky-400"
+              >info@imobilebi.com</a
+            >
+          </p>
+          <p>地址：台北市松山區南京東路四段1號11樓</p>
         </div>
+        <p class="text-xs text-slate-500 mt-6">
+          &copy; 2025 德昂資訊有限公司. All Rights Reserved.
+        </p>
+      </div>
     </footer>
 
     <script>
-        const contactForm = document.getElementById('contactForm');
-        const submitBtn = document.getElementById('submit-btn');
-        const btnText = submitBtn.querySelector('.btn-text');
-        
-        const messageModal = document.getElementById('message-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalMessage = document.getElementById('modal-message');
-        const closeModalButton = document.getElementById('close-modal');
+      const contactForm = document.getElementById("contactForm");
+      const submitBtn = document.getElementById("submit-btn");
+      const btnText = submitBtn.querySelector(".btn-text");
 
-        const imageModal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        const closeImageModal = document.getElementById('close-image-modal');
-        const galleryImages = document.querySelectorAll('[data-enlarge]');
+      const messageModal = document.getElementById("message-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalMessage = document.getElementById("modal-message");
+      const closeModalButton = document.getElementById("close-modal");
 
-        function showModal(title, message, isSuccess) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modalTitle.className = `text-2xl font-bold mb-4 ${isSuccess ? 'text-cyan-400' : 'text-amber-400'}`;
-            messageModal.classList.remove('hidden');
-        }
+      const imageModal = document.getElementById("image-modal");
+      const modalImage = document.getElementById("modal-image");
+      const closeImageModal = document.getElementById("close-image-modal");
+      const galleryImages = document.querySelectorAll("[data-enlarge]");
 
-        closeModalButton.addEventListener('click', () => messageModal.classList.add('hidden'));
-        messageModal.addEventListener('click', (event) => {
-            if (event.target === messageModal) messageModal.classList.add('hidden');
+      function showModal(title, message, isSuccess) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modalTitle.className = `text-2xl font-bold mb-4 ${
+          isSuccess ? "text-cyan-400" : "text-amber-400"
+        }`;
+        messageModal.classList.remove("hidden");
+      }
+
+      closeModalButton.addEventListener("click", () =>
+        messageModal.classList.add("hidden")
+      );
+      messageModal.addEventListener("click", (event) => {
+        if (event.target === messageModal) messageModal.classList.add("hidden");
+      });
+
+      if (imageModal && modalImage) {
+        const hideImageModal = () => imageModal.classList.add("hidden");
+
+        galleryImages.forEach((image) => {
+          image.addEventListener("click", () => {
+            modalImage.src = image.dataset.enlarge || image.src;
+            modalImage.alt = image.alt || "放大圖片";
+            imageModal.classList.remove("hidden");
+          });
         });
 
-        if (imageModal && modalImage) {
-            const hideImageModal = () => imageModal.classList.add('hidden');
-
-            galleryImages.forEach(image => {
-                image.addEventListener('click', () => {
-                    modalImage.src = image.dataset.enlarge || image.src;
-                    modalImage.alt = image.alt || '放大圖片';
-                    imageModal.classList.remove('hidden');
-                });
-            });
-
-            if (closeImageModal) {
-                closeImageModal.addEventListener('click', hideImageModal);
-            }
-
-            imageModal.addEventListener('click', (event) => {
-                if (event.target === imageModal) hideImageModal();
-            });
+        if (closeImageModal) {
+          closeImageModal.addEventListener("click", hideImageModal);
         }
 
-        contactForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const originalBtnText = btnText.textContent;
-            submitBtn.disabled = true;
-            btnText.textContent = '傳送中...';
-            submitBtn.classList.add('loading');
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                company: document.getElementById('company').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-            };
+        imageModal.addEventListener("click", (event) => {
+          if (event.target === imageModal) hideImageModal();
+        });
+      }
 
+      contactForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const originalBtnText = btnText.textContent;
+        submitBtn.disabled = true;
+        btnText.textContent = "傳送中...";
+        submitBtn.classList.add("loading");
+
+        const formData = {
+          name: document.getElementById("name").value,
+          company: document.getElementById("company").value,
+          email: document.getElementById("email").value,
+          phone: document.getElementById("phone").value,
+        };
+
+        try {
+          // 加入 15s 逾時，避免網路/郵件服務阻塞導致無限轉圈
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+          const response = await fetch("/api/sendEmail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+            signal: controller.signal,
+          });
+
+          if (!response.ok) {
+            let serverMsg = "";
+            let serverCode = "";
             try {
-                // 加入 15s 逾時，避免網路/郵件服務阻塞導致無限轉圈
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-                const response = await fetch('/api/sendEmail', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
-                    signal: controller.signal
-                });
-
-                if (!response.ok) {
-                    let serverMsg = '';
-                    let serverCode = '';
-                    try {
-                        const errJson = await response.json();
-                        serverMsg = errJson?.message || '';
-                        serverCode = errJson?.code || '';
-                    } catch (_) {
-                        try { serverMsg = await response.text(); } catch (_) {}
-                    }
-                    const msg = serverMsg || `HTTP ${response.status}`;
-                    const codeSuffix = serverCode ? ` [${serverCode}]` : '';
-                    throw new Error(`伺服器錯誤: ${msg}${codeSuffix}`);
-                }
-
-                const result = await response.json();
-                showModal('感謝您！', '我們已收到您的預約資訊，數據顧問將會盡快與您聯繫。', true);
-                contactForm.reset();
-
-            } catch (error) {
-                console.error('表單提交錯誤:', error);
-                const isTimeout = error?.name === 'AbortError';
-                const msg = String(error?.message || '未知錯誤');
-                const friendly = isTimeout
-                    ? '目前伺服器或郵件服務較忙，請稍後再試或直接 E-mail 與我們聯繫。'
-                    : (msg.includes('SMTP_NOT_CONFIGURED') || msg.includes('郵件服務尚未設定'))
-                        ? '郵件服務尚未設定，我們會盡快修復。請稍後再試或直接 E-mail 與我們聯繫。'
-                        : '很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。';
-                showModal(isTimeout ? '連線逾時' : '傳送失敗', friendly, false);
-            } finally {
-                 // 總是清掉 timeout 並復原按鈕狀態
-                 try { clearTimeout(timeoutId); } catch (_) {}
-                 submitBtn.disabled = false;
-                 btnText.textContent = originalBtnText;
-                 submitBtn.classList.remove('loading');
+              const errJson = await response.json();
+              serverMsg = errJson?.message || "";
+              serverCode = errJson?.code || "";
+            } catch (_) {
+              try {
+                serverMsg = await response.text();
+              } catch (_) {}
             }
-        });
+            const msg = serverMsg || `HTTP ${response.status}`;
+            const codeSuffix = serverCode ? ` [${serverCode}]` : "";
+            throw new Error(`伺服器錯誤: ${msg}${codeSuffix}`);
+          }
 
-        // --- Fade-in Animation Logic ---
-        const faders = document.querySelectorAll('.fade-in');
-        const appearOptions = { threshold: 0.2, rootMargin: "0px 0px -50px 0px" };
-        const appearOnScroll = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, appearOptions);
-        faders.forEach(fader => appearOnScroll.observe(fader));
+          const result = await response.json();
+          showModal(
+            "感謝您！",
+            "我們已收到您的預約資訊，數據顧問將會盡快與您聯繫。",
+            true
+          );
+          contactForm.reset();
+        } catch (error) {
+          console.error("表單提交錯誤:", error);
+          const isTimeout = error?.name === "AbortError";
+          const msg = String(error?.message || "未知錯誤");
+          const friendly = isTimeout
+            ? "目前伺服器或郵件服務較忙，請稍後再試或直接 E-mail 與我們聯繫。"
+            : msg.includes("SMTP_NOT_CONFIGURED") ||
+              msg.includes("郵件服務尚未設定")
+            ? "郵件服務尚未設定，我們會盡快修復。請稍後再試或直接 E-mail 與我們聯繫。"
+            : "很抱歉，系統發生問題，請稍後再試或直接 E-mail 與我們聯繫。";
+          showModal(isTimeout ? "連線逾時" : "傳送失敗", friendly, false);
+        } finally {
+          // 總是清掉 timeout 並復原按鈕狀態
+          try {
+            clearTimeout(timeoutId);
+          } catch (_) {}
+          submitBtn.disabled = false;
+          btnText.textContent = originalBtnText;
+          submitBtn.classList.remove("loading");
+        }
+      });
+
+      // --- Fade-in Animation Logic ---
+      const faders = document.querySelectorAll(".fade-in");
+      const appearOptions = { threshold: 0.2, rootMargin: "0px 0px -50px 0px" };
+      const appearOnScroll = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, appearOptions);
+      faders.forEach((fader) => appearOnScroll.observe(fader));
     </script>
 
-</body>
+    <!-- WUUNU SNIPPET - DON'T CHANGE THIS (START) -->
+    <script>
+      window.__WUUNU_WS__ = "http://127.0.0.1:62425/";
+    </script>
+    <script
+      id="wuunu-widget-script"
+      data-wuunu-widget
+      src="https://cdn.jsdelivr.net/npm/@wuunu/widget@0.1?cacheParam=208"
+      defer
+      crossorigin="anonymous"
+    ></script>
+    <!-- WUUNU SNIPPET - DON'T CHANGE THIS (END) -->
+  </body>
 </html>
