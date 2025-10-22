@@ -33,9 +33,9 @@ export default async function handler(req, res) {
                 body: JSON.stringify({
                     from: fromAddr,
                     to: [toAddr],
-                    subject: '【新客戶預約】來自 ImobileBI 官網的 DEMO 演示請求',
+                    subject: '【新客戶諮詢】來自 ImobileBI 官網的產品諮詢',
                     html: `
-                        <h2>您有一封新的 Demo 預約請求</h2>
+                        <h2>您有一封新的客戶諮詢</h2>
                         <p><strong>姓名：</strong> ${name}</p>
                         <p><strong>公司名稱：</strong> ${company}</p>
                         <p><strong>聯絡 Email：</strong> ${email}</p>
